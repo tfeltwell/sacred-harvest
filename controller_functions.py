@@ -17,21 +17,35 @@ import psmove
 
 class cHandler():
 	def __init__(self):
-		print 'Initialising controllerFunctions object'
-		self.move1 = psmove.PSMove()
+		print '\n\nInitialising cHanlder object'
+
+		# Count number connected and create that many objects
+		self.connected = psmove.count_connected()
+		print 'Connected controllers:', self.connected
+		self.moves = [(m.get_serial(), m) for m in (psmove.PSMove(i) for i in range(self.connected))]
+
+		self.serials = []
+
+	# Below here still needs fixing
 
 	def lowRumble(self):
-		self.move1.set_rumble(64)
+		self.moves.set_rumble(64)
 
 	def mediumRumble(self):
-		self.move1.set_rumble(128)
+		self.moves.set_rumble(128)
 
 	def highRumble(self):
-		self.move1.set_rumble(255)
+		self.moves.set_rumble(255)
 
-	def setLEDs(self):
-		self.move1.set_leds(0,255,0)
+	def setLEDs(self,colour):
+		# Pass in colour as string
+		if colour == 'r':
+			cVal = (255,0,0)
+		elif colour == 'g':
+			cVal = (0,255,0)
+		elif colour == 'b':
+			cVal = (0,0,255)
+		elif colour == 'y':
+			cVal = (255,255,0)
 
-# RED = (255,0,0)
-# BLUE = (0,0,255)
-# GREEN = (0,255,0)
+		self.moves.set_leds(cVal[0],cVal[1],cVal[2])
