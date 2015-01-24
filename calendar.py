@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+# Calendar and other game system functions
+# Tracks season and year types, as well as how much wheat has been harvested
+
 import random
 
 class Calendar:

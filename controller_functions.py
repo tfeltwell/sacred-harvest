@@ -11,7 +11,7 @@ else:
 
 import psmove
 
-# Basic functions to Sacred Harvest to utilise PS Move controllers
+# Functionality for Sacred Harvest to utilise PS Move controllers
 
 # Created: 24/01/2015 by Tom Feltwell
 
@@ -28,9 +28,6 @@ class cHandler():
 	def update(self, calendar):
 		for i, (serial, move) in enumerate(sorted(self.moves)):
 			if move.poll():
-				trig = move.get_trigger()
-				# print '#'+str(i),' Trigger value:', trig # DEBUG Can be used to identify controllers
-
 				# Set colour based on season
 				if calendar.getSeason() == 0:
 					move.set_leds(0,255,0)
@@ -42,11 +39,18 @@ class cHandler():
 					move.set_leds(125,125,125)
 				move.update_leds()
 
-
-	# Below here still needs fixing to iterate through the list of moves
+				# trig = move.get_trigger()
+				# print '#'+str(i),' Trigger value:', trig # DEBUG Can be used to identify controllers
+		# self.recountConnected()
 
 	def rumble(self, move, rumbleAmount): 
 		# Pass in a move object (from self.moves) and rumble quantity
 		if rumbleAmount >= 0 and rumbleAmount <= 255:
 			move.set_rumble(rumbleAmount)
+
+	def recountConnected(self):
+			connections = psmove.count_connected()
+			if connections != self.connected:
+				print 'Someone disconnected'
+				self.connected = connections
 
