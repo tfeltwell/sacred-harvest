@@ -23,29 +23,30 @@ class cHandler():
 		self.connected = psmove.count_connected()
 		print 'Connected controllers:', self.connected
 		self.moves = [(m.get_serial(), m) for m in (psmove.PSMove(i) for i in range(self.connected))]
-
 		self.serials = []
 
-	# Below here still needs fixing
+	def update(self, calendar):
+		for i, (serial, move) in enumerate(sorted(self.moves)):
+			if move.poll():
+				trig = move.get_trigger()
+				# print '#'+str(i),' Trigger value:', trig # DEBUG Can be used to identify controllers
 
-	def lowRumble(self):
-		self.moves.set_rumble(64)
+				# Set colour based on season
+				if calendar.getSeason() == 0:
+					move.set_leds(0,255,0)
+				elif calendar.getSeason() == 1:
+					move.set_leds(255,255,0)
+				elif calendar.getSeason() == 2:
+					move.set_leds(255,60,0)
+				elif calendar.getSeason() == 3:
+					move.set_leds(125,125,125)
+				move.update_leds()
 
-	def mediumRumble(self):
-		self.moves.set_rumble(128)
 
-	def highRumble(self):
-		self.moves.set_rumble(255)
+	# Below here still needs fixing to iterate through the list of moves
 
-	def setLEDs(self,colour):
-		# Pass in colour as string
-		if colour == 'r':
-			cVal = (255,0,0)
-		elif colour == 'g':
-			cVal = (0,255,0)
-		elif colour == 'b':
-			cVal = (0,0,255)
-		elif colour == 'y':
-			cVal = (255,255,0)
+	def rumble(self, move, rumbleAmount): 
+		# Pass in a move object (from self.moves) and rumble quantity
+		if rumbleAmount >= 0 and rumbleAmount <= 255:
+			move.set_rumble(rumbleAmount)
 
-		self.moves.set_leds(cVal[0],cVal[1],cVal[2])
