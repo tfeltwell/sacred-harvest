@@ -3,7 +3,34 @@
 import controller_functions
 import calendar
 
+# Pygame shit
+import pygame, sys
+from pygame.locals import *
+
 if __name__ == "__main__":
+
+	# Pygame shit
+	pygame.init()
+	WIDTH = 1023
+	HEIGHT = 600
+	DISPLAYSURF = pygame.display.set_mode((WIDTH,HEIGHT))
+	pygame.display.set_caption("Sacred Harvest")
+	backgroundColor = 212,203,188
+	fontBlk = 0,0,0
+	DISPLAYSURF.fill(backgroundColor)
+	rituals = pygame.image.load("rituals.png")
+	ritualsrect = rituals.get_rect()
+	DISPLAYSURF.blit(rituals,ritualsrect)
+	wheelAngle = 0
+	seasonWheel = pygame.image.load("seasonWheel.png")
+	seasonWheelRect = seasonWheel.get_rect()
+	seasonWheelRect.center = (486,570)
+	# wheelCoords = (366,481)
+	
+	blittedRect = DISPLAYSURF.blit(seasonWheel,seasonWheelRect)
+	oldCentre = blittedRect.center
+	pygame.display.update()
+	clock = pygame.time.Clock()
 
 	handler = controller_functions.cHandler() # Init our controller handler
 	calendar = calendar.Calendar()
@@ -11,16 +38,43 @@ if __name__ == "__main__":
 	print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 
 	while True:
-		# print 'Current season',calendar.getSeason()
+		#pygame
+		for event in pygame.event.get():
+			if event.type == QUIT:
+				pygame.quit()
+				sys.exit()
+
+		# Controller update
 		handler.update(calendar)
 
 		# Reimplement this when we decide on graphics engine 
-		if frame == 1000000:
+		if frame == 1000:
 			calendar.changeSeason()
 			frame = 0
 			print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
+
+			
+
 		else:
 			frame += 1
+
+		# Pygame redrawing stuff and rotating wheel
+		# DISPLAYSURF.blit(rituals,ritualsrect) # Redraw background
+		if frame % 10 == 0:
+			# Logic to get wheel rotating
+			if wheelAngle-1 == -360:
+				wheelAngle = 0
+			else:
+				wheelAngle -= 1
+		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)
+		rotWheelRect = rotWheel.get_rect()
+		rotWheelRect.center = oldCentre
+
+		blittedRect = DISPLAYSURF.blit(rotWheel,rotWheelRect)
+		oldCentre = blittedRect.center
+
+		pygame.display.update()
+		clock.tick(10000) # Controls the frame rate
 
 
 	## DEBUG ##
