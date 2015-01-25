@@ -12,6 +12,8 @@ if __name__ == "__main__":
 	# Pygame shit
 	waiting = True
 	sacrifice = False
+	ritualcount = 0
+	isrituals = False
 	
 	pygame.init()
 	pygame.mixer.music.load("walsall.wav")
@@ -20,7 +22,7 @@ if __name__ == "__main__":
 	#WIDTH = 1023
 	#HEIGHT = 800
 	DISPLAYSURF = pygame.Surface((1023,800))
-	DISPLAYSURF2 = pygame.display.set_mode((1023,572))#,pygame.FULLSCREEN)
+	DISPLAYSURF2 = pygame.display.set_mode((1023,572),pygame.FULLSCREEN)
 	pygame.display.set_caption("Sacred Harvest")
 	bgColour = 255,255,255
 	fontColour = 0,0,0
@@ -87,7 +89,7 @@ if __name__ == "__main__":
 				else:
 					wheelAngle -= 1
 					
-		if wheelAngle % 90 == 0 and not waiting and not isgameover:# == 500 and not waiting and not isgameover:#trigger actual change in season
+		if wheelAngle % 90 == 0 and not waiting and not isgameover and not isrituals:# == 500 and not waiting and not isgameover:#trigger actual change in season
 			
 			waiting = True
 			frame = 0
@@ -124,7 +126,7 @@ if __name__ == "__main__":
 					DISPLAYSURF.blit(goodsamhain,goodsamhain.get_rect())		
 				
 			else:		
-			
+				isrituals = True
 				DISPLAYSURF.blit(rituals,ritualsrect)#start of season,
 			
 		elif not waiting:
@@ -157,12 +159,19 @@ if __name__ == "__main__":
 			
 		if waiting and handler.allTriggers() and not sacrifice and not isgameover:#all triggers makes the season move on
 			waiting = False
+			if(isrituals):
+				handler.stopRumbling()	
+				isrituals = False
 			# Redraw background once per season to save processor
 			flute.play()
 			calendar.changeSeason()
 			handler.setLeds(calendar)
 			print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 			DISPLAYSURF.blit(transition,transition.get_rect())
+			
+		if isrituals:
+			#vibrate if moving
+			handler.checkVibrate()
 
 		
 		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)

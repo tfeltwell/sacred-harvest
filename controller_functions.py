@@ -28,6 +28,10 @@ class cHandler():
 		self.g=0
 		self.b=0
 		self.target_leds = [0,0,0]
+		self.lastframes = []
+		for i, (serial, move) in enumerate(sorted(self.moves)):
+			self.lastframes.append(move.get_accelerometer_frame(psmove.Frame_SecondHalf))
+		
 							
 	def setLeds(self,calendar):
 		
@@ -39,8 +43,27 @@ class cHandler():
 			self.target_leds = [255,60,0]
 		elif calendar.getSeason() == 3:
 			self.target_leds = [125,125,125]
+	def stopRumbling(self):
+		for i, (serial, move) in enumerate(sorted(self.moves)):
+			move.set_rumble(0)
 			
-	
+		
+	def checkVibrate(self):
+		for i, (serial, move) in enumerate(sorted(self.moves)):
+			f = move.get_accelerometer_frame(psmove.Frame_SecondHalf)
+			t = f[0]+f[1]+f[2]
+			last = self.lastframes[i][0]+self.lastframes[i][1]+self.lastframes[i][2]
+			if (t - last)> 1000 or (last-t)> 1000:
+				print t-last	
+				move.set_rumble(150)
+			else:
+				move.set_rumble(0)
+				
+		self.lastframes=[]
+		for i, (serial, move) in enumerate(sorted(self.moves)):
+			
+			self.lastframes.append(move.get_accelerometer_frame(psmove.Frame_SecondHalf))
+		
 	def update(self):
 		# Set colour based on season
 		
