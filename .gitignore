@@ -1,2 +1,5 @@
 *.*~
 *.pyc
+ls -a
+.project
+.pydevproject
