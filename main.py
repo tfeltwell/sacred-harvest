@@ -52,15 +52,15 @@ if __name__ == "__main__":
 			calendar.changeSeason()
 			frame = 0
 			print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
-
-			
-
+			# Redraw background once per season to save processor
+			DISPLAYSURF.fill(backgroundColor)
+			DISPLAYSURF.blit(rituals,ritualsrect)
 		else:
 			frame += 1
 
 		# Pygame redrawing stuff and rotating wheel
 		# DISPLAYSURF.blit(rituals,ritualsrect) # Redraw background
-		if frame % 10 == 0:
+		if frame % 13 == 0:
 			# Logic to get wheel rotating
 			if wheelAngle-1 == -360:
 				wheelAngle = 0
