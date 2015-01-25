@@ -39,8 +39,8 @@ class cHandler():
 					move.set_leds(125,125,125)
 				move.update_leds()
 
-				# trig = move.get_trigger()
-				# print '#'+str(i),' Trigger value:', trig # DEBUG Can be used to identify controllers
+				trig = move.get_trigger()
+				print '#'+str(i),' Trigger value:', trig # DEBUG Can be used to identify controllers
 		# self.recountConnected()
 
 	def rumble(self, move, rumbleAmount): 
