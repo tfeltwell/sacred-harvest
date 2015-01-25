@@ -59,6 +59,7 @@ if __name__ == "__main__":
 	sacrifice_not_pressed = handler.serials[:]
 	
 	calendar = calendar.Calendar()
+	handler.setLeds(calendar)
 	frame = 0
 	print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 
@@ -70,7 +71,7 @@ if __name__ == "__main__":
 				sys.exit()
 
 		# Controller update
-		handler.update(calendar)
+		handler.update()
 
 		# TODO: Reimplement frame var to use pygame clock
 		
@@ -120,6 +121,8 @@ if __name__ == "__main__":
 			
 		if waiting and sacrifice and not isgameover:
 			print (sacrifice_not_pressed)
+			if(len(sacrifice_not_pressed)==0):
+				sacrifice_not_pressed.append(handler.serials[0])#lol
 			if(len(sacrifice_not_pressed)==1):
 				#kill
 				handler.kill(sacrifice_not_pressed[0])
@@ -128,8 +131,10 @@ if __name__ == "__main__":
 				# Redraw background once per season to save processor
 				
 				calendar.changeSeason()
+				handler.setLeds(calendar)
 				print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 				DISPLAYSURF.blit(transition,transition.get_rect())
+			
 				
 			for s in handler.getTriggers():
 				
@@ -143,6 +148,7 @@ if __name__ == "__main__":
 			# Redraw background once per season to save processor
 			
 			calendar.changeSeason()
+			handler.setLeds(calendar)
 			print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 			DISPLAYSURF.blit(transition,transition.get_rect())
 

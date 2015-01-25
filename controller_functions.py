@@ -24,19 +24,43 @@ class cHandler():
 		print 'Connected controllers:', self.connected
 		self.moves = [(m.get_serial(), m) for m in (psmove.PSMove(i) for i in range(self.connected))]
 		self.serials = [m.get_serial() for m in (psmove.PSMove(i) for i in range(self.connected))]
-
-	def update(self, calendar):
+		self.r =0
+		self.g=0
+		self.b=0
+		self.target_leds = [0,0,0]
+							
+	def setLeds(self,calendar):
+		
+		if calendar.getSeason() == 0:
+			self.target_leds = [0,255,0]
+		elif calendar.getSeason() == 1:
+			self.target_leds = [255,255,0]
+		elif calendar.getSeason() == 2:
+			self.target_leds = [255,60,0]
+		elif calendar.getSeason() == 3:
+			self.target_leds = [125,125,125]
+			
+	
+	def update(self):
+		# Set colour based on season
+		
+		if self.r<self.target_leds[0]:
+			self.r +=1
+		if self.r>self.target_leds[0]:
+			self.r -=1
+		if self.g<self.target_leds[1]:
+			self.g +=1
+		if self.g>self.target_leds[1]:
+			self.g -=1
+		if self.b<self.target_leds[2]:
+			self.b +=1
+		if self.b>self.target_leds[2]:
+			self.b -=1
+		
 		for i, (serial, move) in enumerate(sorted(self.moves)):
 			if move.poll():
-				# Set colour based on season
-				if calendar.getSeason() == 0:
-					move.set_leds(0,255,0)
-				elif calendar.getSeason() == 1:
-					move.set_leds(255,255,0)
-				elif calendar.getSeason() == 2:
-					move.set_leds(255,60,0)
-				elif calendar.getSeason() == 3:
-					move.set_leds(125,125,125)
+				
+				move.set_leds(self.r,self.g,self.b)
 				move.update_leds()
 
 				#trig = move.get_trigger()
