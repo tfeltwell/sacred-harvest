@@ -14,9 +14,13 @@ if __name__ == "__main__":
 	sacrifice = False
 	
 	pygame.init()
-	WIDTH = 1023
-	HEIGHT = 800
-	DISPLAYSURF = pygame.display.set_mode((WIDTH,HEIGHT))
+	pygame.mixer.music.load("walsall.wav")
+	pygame.mixer.music.play(-1)
+	flute = pygame.mixer.Sound("flute.wav")
+	#WIDTH = 1023
+	#HEIGHT = 800
+	DISPLAYSURF = pygame.Surface((1023,800))
+	DISPLAYSURF2 = pygame.display.set_mode((1023,572))#,pygame.FULLSCREEN)
 	pygame.display.set_caption("Sacred Harvest")
 	bgColour = 255,255,255
 	fontColour = 0,0,0
@@ -41,7 +45,7 @@ if __name__ == "__main__":
 	# Season wheel stuff
 	seasonWheelRect = seasonWheel.get_rect()
 	seasonWheelRect.center = (486,580)
-	wheelAngle = 0
+	wheelAngle = 90
 	
 
 	DISPLAYSURF.fill(bgColour)
@@ -66,7 +70,7 @@ if __name__ == "__main__":
 	while True:
 		#pygame events
 		for event in pygame.event.get():
-			if event.type == QUIT:
+			if event.type == QUIT or (event.type ==pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 				pygame.quit()
 				sys.exit()
 
@@ -74,8 +78,16 @@ if __name__ == "__main__":
 		handler.update()
 
 		# TODO: Reimplement frame var to use pygame clock
-		
-		if frame == 500 and not waiting and not isgameover:#trigger actual change in season
+		# Pygame redrawing stuff and rotating wheel
+		if not waiting and not isgameover:
+			if frame % 13 == 0:
+				# Logic to get wheel rotating
+				if wheelAngle-1 == -360:
+					wheelAngle = 0
+				else:
+					wheelAngle -= 1
+					
+		if wheelAngle % 90 == 0 and not waiting and not isgameover:# == 500 and not waiting and not isgameover:#trigger actual change in season
 			
 			waiting = True
 			frame = 0
@@ -146,27 +158,20 @@ if __name__ == "__main__":
 		if waiting and handler.allTriggers() and not sacrifice and not isgameover:#all triggers makes the season move on
 			waiting = False
 			# Redraw background once per season to save processor
-			
+			flute.play()
 			calendar.changeSeason()
 			handler.setLeds(calendar)
 			print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 			DISPLAYSURF.blit(transition,transition.get_rect())
 
-		# Pygame redrawing stuff and rotating wheel
-		if not waiting and not isgameover:
-			if frame % 13 == 0:
-				# Logic to get wheel rotating
-				if wheelAngle-1 == -360:
-					wheelAngle = 0
-				else:
-					wheelAngle -= 1
+		
 		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)
 		rotWheelRect = rotWheel.get_rect()
 		rotWheelRect.center = oldCentre
 		blittedRect = DISPLAYSURF.blit(rotWheel,rotWheelRect)
 		oldCentre = blittedRect.center
 		pygame.draw.rect(DISPLAYSURF,bgColour,(0,570,1023,200))
-
+		DISPLAYSURF2.blit(DISPLAYSURF,DISPLAYSURF.get_rect())
 		pygame.display.update()
 		clock.tick(10000) # Controls the frame rate
 
