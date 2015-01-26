@@ -31,7 +31,7 @@ if __name__ == "__main__":
 	# Load images
 	rituals = pygame.image.load("rituals.png")
 	transition = pygame.image.load("transition.png")
-	seasonWheel = pygame.image.load("seasonWheel.png")
+	seasonWheel = pygame.image.load("seasonWheel2.png")
 	sky = pygame.image.load("sky.png")
 	earth = pygame.image.load("earth.png")
 	flame = pygame.image.load("flame.png")
