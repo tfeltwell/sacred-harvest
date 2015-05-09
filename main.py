@@ -10,7 +10,8 @@ from pygame.locals import *
 if __name__ == "__main__":
 	isgameover = False
 	# Pygame shit
-	waiting = True
+	waiting = True # Waiting for all players to press triggers (on season screen)
+	waitingTime = 0
 	sacrifice = False
 	ritualcount = 0
 	isrituals = False
@@ -19,10 +20,11 @@ if __name__ == "__main__":
 	pygame.mixer.music.load("walsall.wav")
 	pygame.mixer.music.play(-1)
 	flute = pygame.mixer.Sound("flute.wav")
-	#WIDTH = 1023
-	#HEIGHT = 800
-	DISPLAYSURF = pygame.Surface((1023,800))
+	WIDTH = 1023
+	HEIGHT = 800
+	DISPLAYSURF = pygame.Surface((WIDTH,HEIGHT))
 	DISPLAYSURF2 = pygame.display.set_mode((1023,572),pygame.FULLSCREEN)
+	# DISPLAYSURF2 = pygame.display.set_mode((1023,572))
 	pygame.display.set_caption("Sacred Harvest")
 	bgColour = 255,255,255
 	fontColour = 0,0,0
@@ -49,6 +51,11 @@ if __name__ == "__main__":
 	seasonWheelRect.center = (486,580)
 	wheelAngle = 90
 	
+	# Font and misc
+	textFont = pygame.font.SysFont(None,30)
+	largeFont = pygame.font.SysFont(None, 72)
+	triggerPress = textFont.render("All press trigger to continue", True, (0,0,0))
+	triggerRelease = largeFont.render("All release trigger to continue", True, (0,0,0))
 
 	DISPLAYSURF.fill(bgColour)
 	DISPLAYSURF.blit(sea,sea.get_rect())
@@ -90,11 +97,11 @@ if __name__ == "__main__":
 					wheelAngle -= 1
 					
 		if wheelAngle % 90 == 0 and not waiting and not isgameover and not isrituals:# == 500 and not waiting and not isgameover:#trigger actual change in season
-			
 			waiting = True
 			frame = 0
 			DISPLAYSURF.fill(bgColour)
-			if(calendar.getSeason() == 3): #winter
+			# Winter
+			if(calendar.getSeason() == 3): 
 				calendar.changeYear()
 				if calendar.getYear() == 0:
 					DISPLAYSURF.blit(earth,earth.get_rect())#start of season,
@@ -104,15 +111,22 @@ if __name__ == "__main__":
 					DISPLAYSURF.blit(sea,sea.get_rect())#start of season,
 				if calendar.getYear() == 3:
 					DISPLAYSURF.blit(sky,sky.get_rect())#start of season,
-			elif(calendar.getSeason()==1):#summer/harvest
+
+			# Summer/harvest
+			elif(calendar.getSeason()==1):
 				if(calendar.wheatHarvest==0):
 					DISPLAYSURF.blit(badharvest,badharvest.get_rect())
 				else:
 					DISPLAYSURF.blit(goodharvest,goodharvest.get_rect())
 			
+			# Autumn
 			elif(calendar.getSeason()==2):
 				if(calendar.wheatHarvest==0):
 					
+					# Check all triggers are released
+					if handler.allTriggers():
+						DISPLAYSURF.blit(triggerRelease, (0,(HEIGHT/2)))
+
 					sacrifice_not_pressed = handler.serials[:]
 					sacrifice = True
 					if (len(handler.serials)>1):
@@ -124,11 +138,14 @@ if __name__ == "__main__":
 					
 				else:
 					DISPLAYSURF.blit(goodsamhain,goodsamhain.get_rect())		
-				
+			
+			# Sacrifice (?)	
 			else:		
 				isrituals = True
-				DISPLAYSURF.blit(rituals,ritualsrect)#start of season,
-			
+				DISPLAYSURF.blit(rituals,ritualsrect)#start of season
+
+		
+		# Spinning the wheel	
 		elif not waiting:
 			frame += 1
 			
@@ -157,8 +174,9 @@ if __name__ == "__main__":
 				
 			
 			
-		if waiting and handler.allTriggers() and not sacrifice and not isgameover:#all triggers makes the season move on
+		if waiting and handler.allTriggers() and waitingTime > 300 and not sacrifice and not isgameover:#all triggers makes the season move on
 			waiting = False
+			waitingTime = 0
 			if(isrituals):
 				handler.stopRumbling()	
 				isrituals = False
@@ -173,6 +191,11 @@ if __name__ == "__main__":
 			#vibrate if moving
 			handler.checkVibrate()
 
+		if waiting:
+			waitingTime += 1
+
+		if waitingTime > 1000:
+			DISPLAYSURF.blit(triggerPress,((WIDTH/2)-150,(HEIGHT/2))) # Prompt players to press trigger
 		
 		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)
 		rotWheelRect = rotWheel.get_rect()
