@@ -7,8 +7,8 @@ import random
 
 class Calendar:
 	def __init__(self):
-		self.yearTypes = {'Earth':0,'Fire':1,'Sea':2,'Sky':3}
-		self.seasonTypes = {'Spring':0,'Summer':1,'Autumn':2,'Winter':3}
+		self.yearTypes = ['Earth','Fire','Sea','Sky']
+		self.seasonTypes = ['Spring','Summer','Autumn','Winter']
 		self.currentYear = 0
 		self.currentSeason = 3
 		self.wheatHarvest = 0
@@ -18,6 +18,9 @@ class Calendar:
 
 	def getSeason(self):
 		return self.currentSeason
+
+	def printSeason(self):
+		print 'Year of',self.yearTypes[self.getYear()]+',',self.seasonTypes[self.getSeason()]
 
 	def changeSeason(self):
 		if self.currentSeason+1 == 1:
