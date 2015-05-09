@@ -1,7 +1,7 @@
 import sys, os
 
 # This loads psmoave in from where it lives
-apiPath = '/home/ben/Desktop/psmove-for-ben/psmoveapi/build' # This will depend on who's running it...
+apiPath = '/home/dev/src/psmoveapi/build' # This will depend on who's running it...
 if os.path.exists(apiPath):
     sys.path.append(apiPath)
     print 'Set path variable for psMove '
@@ -47,13 +47,13 @@ class cHandler():
 		for i, (serial, move) in enumerate(sorted(self.moves)):
 			move.set_rumble(0)
 			
-		
+	# TODO: Implement a better calculation here, maybe vector calculation.
 	def checkVibrate(self):
 		for i, (serial, move) in enumerate(sorted(self.moves)):
 			f = move.get_accelerometer_frame(psmove.Frame_SecondHalf)
 			t = f[0]+f[1]+f[2]
 			last = self.lastframes[i][0]+self.lastframes[i][1]+self.lastframes[i][2]
-			if (t - last)> 1000 or (last-t)> 1000:
+			if (t - last)> 0.2 or (last-t)> 0.2:
 				print t-last	
 				move.set_rumble(150)
 			else:
