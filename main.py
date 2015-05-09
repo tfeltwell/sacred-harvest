@@ -17,6 +17,8 @@ if __name__ == "__main__":
 	ritualcount = 0
 	isrituals = False
 	blocked = False # Someone holding down trigger before sacrifice
+	movement = False # Movement detected on any controllers (stops no movement condition)
+	movementCount = 0 # Count how many times movement is detected
 	
 	pygame.init()
 	pygame.mixer.music.load("walsall.wav")
@@ -55,10 +57,14 @@ if __name__ == "__main__":
 	
 	# Font and misc
 	textFont = pygame.font.SysFont(None,30)
-	largeFont = pygame.font.SysFont(None, 72)
-	bloodRed = 138,7,7
-	triggerPress = largeFont.render("All press trigger to continue", True, (bloodRed))
-	triggerRelease = largeFont.render("All release trigger to continue", True, (bloodRed))
+	largeFont = pygame.font.Font("assets/celtic_gaelige.ttf", 45)
+	black = (46,46,46)
+	bloodRed = (138,7,7)
+	triggerPress = largeFont.render("All press trigger to continue", True, bloodRed)
+	triggerFinish = largeFont.render("All press trigger when finished", True, bloodRed)
+	triggerRelease = largeFont.render("All release trigger to continue", True, bloodRed)
+	ritualPrompt = largeFont.render("Perform three rituals five times", True, black)
+	movementPrompt = largeFont.render("The Gods demand movement", True, bloodRed)
 
 	DISPLAYSURF.fill(bgColour)
 	DISPLAYSURF.blit(sea,sea.get_rect())
@@ -80,7 +86,13 @@ if __name__ == "__main__":
 	# print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
 
 	def printFlags():
-		print "GameOver:",isgameover,"waiting:",waiting,"sacrifice:",sacrifice,"isrituals:",isrituals,"blocked:",blocked
+		print "GameOver:",isgameover,"waiting:",waiting,"sacrifice:",sacrifice,"isrituals:",isrituals,"blocked:",blocked,"movement:",movement
+
+	def checkProgression():
+		if waiting and handler.allTriggers() and waitingTime > 300:
+			return True
+		else:
+			return False
 
 	while True:
 		#pygame events
@@ -104,7 +116,8 @@ if __name__ == "__main__":
 				else:
 					wheelAngle -= 1
 					
-		# Trigger once per season, set up screen and game conditions
+		## Trigger once per season here ##
+
 		if wheelAngle % 90 == 0 and not waiting and not isgameover and not isrituals:# == 500 and not waiting and not isgameover:#trigger actual change in season
 			waiting = True
 			frame = 0
@@ -147,19 +160,27 @@ if __name__ == "__main__":
 				else:
 					DISPLAYSURF.blit(goodsamhain,goodsamhain.get_rect())		
 			
-			# Ritual screen	
+			# Spring	
 			else:		
 				isrituals = True
 				DISPLAYSURF.blit(rituals,ritualsrect)#start of season
+				DISPLAYSURF.blit(ritualPrompt,(200,50))
 
+		## Checks every frame from here down ##
 		
 		# Spinning the wheel	
 		elif not waiting:
 			frame += 1
+
+		if isrituals:
+			# Vibrate if moving. Check 
+			if movementCount >= 20: # More than 20 vibrates means there's been some vibration somewhere
+				movement = True
+			if handler.checkVibrate(): # Returns whether detected movement
+				movementCount += 1
 			
-			
+		# Sacrifice condition	
 		if waiting and sacrifice and not isgameover:
-			# print 'Checking sacrifice'
 			if len(handler.getTriggers()) > 0 and blocked:
 				DISPLAYSURF.blit(triggerRelease, ((WIDTH/2)-300,(HEIGHT/2)))
 			else:
@@ -174,42 +195,44 @@ if __name__ == "__main__":
 					sacrifice = False
 					waiting = False
 					# Redraw background once per season to save processor
-					
 					calendar.changeSeason()
 					handler.setLeds(calendar)
 					calendar.printSeason()
 					DISPLAYSURF.blit(transition,transition.get_rect())
 				
-					
+				# Basically disconnect the controller that was last
 				for s in handler.getTriggers():
-					
 					if s in sacrifice_not_pressed:
-						sacrifice_not_pressed.remove(s)
-				
+						sacrifice_not_pressed.remove(s)	
 			
-			
-		if waiting and handler.allTriggers() and waitingTime > 300 and not sacrifice and not isgameover:#all triggers makes the season move on
-			waiting = False
-			waitingTime = 0
-			if(isrituals):
-				handler.stopRumbling()	
-				isrituals = False
-			# Redraw background once per season to save processor
-			flute.play()
-			calendar.changeSeason()
-			handler.setLeds(calendar)
-			calendar.printSeason()
-			DISPLAYSURF.blit(transition,transition.get_rect())
-			
-		if isrituals:
-			#vibrate if moving
-			handler.checkVibrate()
+		# Check if ready to move to next screen
+		if checkProgression() and not sacrifice and not isgameover:
+			if isrituals and not movement:
+				DISPLAYSURF.blit(movementPrompt,((200),100)) # If noone has moved you can't progress from rituals
+			else:
+				waiting = False
+				waitingTime = 0
+				if(isrituals):
+					handler.stopRumbling()	
+					isrituals = False
+				# Redraw background once per season to save processor
+				flute.play()
+				calendar.changeSeason()
+				handler.setLeds(calendar)
+				calendar.printSeason()
+				DISPLAYSURF.blit(transition,transition.get_rect())
 
+		# Waiting on screen (between wheel rotation)
 		if waiting:
 			waitingTime += 1
-
 		if waitingTime > 1000 and not blocked and not isgameover:
-			DISPLAYSURF.blit(triggerPress,((WIDTH/2)-330,(HEIGHT/2)-30)) # Prompt players to press trigger
+			if calendar.getSeason() == 0: # Do special stuff if in rituals
+				if movement:
+					DISPLAYSURF.blit(rituals,ritualsrect)#start of season
+					DISPLAYSURF.blit(ritualPrompt,(200,50))
+					DISPLAYSURF.blit(triggerFinish,(200,100))
+			else:
+				DISPLAYSURF.blit(triggerPress,((WIDTH/2)-330,(HEIGHT/2)-30)) # Prompt players to press trigger
 		
 		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)
 		rotWheelRect = rotWheel.get_rect()
