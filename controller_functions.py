@@ -49,20 +49,22 @@ class cHandler():
 			
 	# TODO: Implement a better calculation here, maybe vector calculation.
 	def checkVibrate(self):
+		vibrateFlag = False
 		for i, (serial, move) in enumerate(sorted(self.moves)):
 			f = move.get_accelerometer_frame(psmove.Frame_SecondHalf)
 			t = f[0]+f[1]+f[2]
 			last = self.lastframes[i][0]+self.lastframes[i][1]+self.lastframes[i][2]
-			if (t - last)> 0.2 or (last-t)> 0.2:
-				print t-last	
+			if (t - last)> 0.2 or (last-t)> 0.2:	
 				move.set_rumble(150)
+				vibrateFlag = True # If it vibrates it's classed as movement
+				print "Check vibrate returning",vibrateFlag
 			else:
 				move.set_rumble(0)
 				
 		self.lastframes=[]
 		for i, (serial, move) in enumerate(sorted(self.moves)):
-			
 			self.lastframes.append(move.get_accelerometer_frame(psmove.Frame_SecondHalf))
+		return vibrateFlag
 		
 	def update(self):
 		# Set colour based on season
