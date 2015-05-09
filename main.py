@@ -77,7 +77,10 @@ if __name__ == "__main__":
 	calendar = calendar.Calendar()
 	handler.setLeds(calendar)
 	frame = 0
-	print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
+	# print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
+
+	def printFlags():
+		print "GameOver:",isgameover,"waiting:",waiting,"sacrifice:",sacrifice,"isrituals:",isrituals,"blocked:",blocked
 
 	while True:
 		#pygame events
@@ -85,6 +88,8 @@ if __name__ == "__main__":
 			if event.type == QUIT or (event.type ==pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
 				pygame.quit()
 				sys.exit()
+			if event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+				printFlags()
 
 		# Controller update
 		handler.update()
@@ -172,7 +177,7 @@ if __name__ == "__main__":
 					
 					calendar.changeSeason()
 					handler.setLeds(calendar)
-					print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
+					calendar.printSeason()
 					DISPLAYSURF.blit(transition,transition.get_rect())
 				
 					
@@ -193,7 +198,7 @@ if __name__ == "__main__":
 			flute.play()
 			calendar.changeSeason()
 			handler.setLeds(calendar)
-			print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
+			calendar.printSeason()
 			DISPLAYSURF.blit(transition,transition.get_rect())
 			
 		if isrituals:
@@ -203,8 +208,8 @@ if __name__ == "__main__":
 		if waiting:
 			waitingTime += 1
 
-		if waitingTime > 1000 and not blocked and not gameover:
-			DISPLAYSURF.blit(triggerPress,((WIDTH/2)-150,(HEIGHT/2))) # Prompt players to press trigger
+		if waitingTime > 1000 and not blocked and not isgameover:
+			DISPLAYSURF.blit(triggerPress,((WIDTH/2)-330,(HEIGHT/2)-30)) # Prompt players to press trigger
 		
 		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)
 		rotWheelRect = rotWheel.get_rect()
@@ -215,6 +220,7 @@ if __name__ == "__main__":
 		DISPLAYSURF2.blit(DISPLAYSURF,DISPLAYSURF.get_rect())
 		pygame.display.update()
 		clock.tick(10000) # Controls the frame rate
+
 
 	## DEBUG ##
 	# Test the connections, press trigger and each one should light up
