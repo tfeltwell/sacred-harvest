@@ -27,8 +27,8 @@ if __name__ == "__main__":
 	WIDTH = 1023
 	HEIGHT = 800
 	DISPLAYSURF = pygame.Surface((WIDTH,HEIGHT))
-	# DISPLAYSURF2 = pygame.display.set_mode((1023,572),pygame.FULLSCREEN)
-	DISPLAYSURF2 = pygame.display.set_mode((1023,572))
+	DISPLAYSURF2 = pygame.display.set_mode((1023,572),pygame.FULLSCREEN)
+	# DISPLAYSURF2 = pygame.display.set_mode((1023,572))
 	pygame.display.set_caption("Sacred Harvest")
 	bgColour = 255,255,255
 	fontColour = 0,0,0
@@ -182,7 +182,7 @@ if __name__ == "__main__":
 		# Sacrifice condition	
 		if waiting and sacrifice and not isgameover:
 			if len(handler.getTriggers()) > 0 and blocked:
-				DISPLAYSURF.blit(triggerRelease, ((WIDTH/2)-300,(HEIGHT/2)))
+				DISPLAYSURF.blit(triggerRelease, (300,(HEIGHT/2)-150)) # Everyone release trigger
 			else:
 				blocked = False
 				# print (sacrifice_not_pressed) #Print list of controllers
@@ -212,6 +212,8 @@ if __name__ == "__main__":
 			else:
 				waiting = False
 				waitingTime = 0
+				movement = False
+				movementCount = 0
 				if(isrituals):
 					handler.stopRumbling()	
 					isrituals = False

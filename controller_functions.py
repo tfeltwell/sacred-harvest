@@ -54,10 +54,9 @@ class cHandler():
 			f = move.get_accelerometer_frame(psmove.Frame_SecondHalf)
 			t = f[0]+f[1]+f[2]
 			last = self.lastframes[i][0]+self.lastframes[i][1]+self.lastframes[i][2]
-			if (t - last)> 0.2 or (last-t)> 0.2:	
+			if (t - last)> 0.3 or (last-t)> 0.3:	
 				move.set_rumble(150)
 				vibrateFlag = True # If it vibrates it's classed as movement
-				print "Check vibrate returning",vibrateFlag
 			else:
 				move.set_rumble(0)
 				
