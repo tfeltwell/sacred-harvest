@@ -8,13 +8,15 @@ import pygame, sys
 from pygame.locals import *
 
 if __name__ == "__main__":
+	
+	# Game flags
 	isgameover = False
-	# Pygame shit
 	waiting = True # Waiting for all players to press triggers (on season screen)
-	waitingTime = 0
-	sacrifice = False
+	waitingTime = 0 # Num. frames waited in waiting condition
+	sacrifice = False # Triggers the sacrifice minigame
 	ritualcount = 0
 	isrituals = False
+	blocked = False # Someone holding down trigger before sacrifice
 	
 	pygame.init()
 	pygame.mixer.music.load("walsall.wav")
@@ -23,8 +25,8 @@ if __name__ == "__main__":
 	WIDTH = 1023
 	HEIGHT = 800
 	DISPLAYSURF = pygame.Surface((WIDTH,HEIGHT))
-	DISPLAYSURF2 = pygame.display.set_mode((1023,572),pygame.FULLSCREEN)
-	# DISPLAYSURF2 = pygame.display.set_mode((1023,572))
+	# DISPLAYSURF2 = pygame.display.set_mode((1023,572),pygame.FULLSCREEN)
+	DISPLAYSURF2 = pygame.display.set_mode((1023,572))
 	pygame.display.set_caption("Sacred Harvest")
 	bgColour = 255,255,255
 	fontColour = 0,0,0
@@ -54,8 +56,9 @@ if __name__ == "__main__":
 	# Font and misc
 	textFont = pygame.font.SysFont(None,30)
 	largeFont = pygame.font.SysFont(None, 72)
-	triggerPress = textFont.render("All press trigger to continue", True, (0,0,0))
-	triggerRelease = largeFont.render("All release trigger to continue", True, (0,0,0))
+	bloodRed = 138,7,7
+	triggerPress = largeFont.render("All press trigger to continue", True, (bloodRed))
+	triggerRelease = largeFont.render("All release trigger to continue", True, (bloodRed))
 
 	DISPLAYSURF.fill(bgColour)
 	DISPLAYSURF.blit(sea,sea.get_rect())
@@ -96,6 +99,7 @@ if __name__ == "__main__":
 				else:
 					wheelAngle -= 1
 					
+		# Trigger once per season, set up screen and game conditions
 		if wheelAngle % 90 == 0 and not waiting and not isgameover and not isrituals:# == 500 and not waiting and not isgameover:#trigger actual change in season
 			waiting = True
 			frame = 0
@@ -122,24 +126,23 @@ if __name__ == "__main__":
 			# Autumn
 			elif(calendar.getSeason()==2):
 				if(calendar.wheatHarvest==0):
-					
-					# Check all triggers are released
-					if handler.allTriggers():
-						DISPLAYSURF.blit(triggerRelease, (0,(HEIGHT/2)))
 
-					sacrifice_not_pressed = handler.serials[:]
-					sacrifice = True
-					if (len(handler.serials)>1):
-						DISPLAYSURF.blit(badsamhain,badsamhain.get_rect())
-					else:
+					# Block the sacrifice condition if triggers are held during transition
+					if len(handler.getTriggers()) > 0:
+						blocked	= True 
+
+					# Kill player if only 1 remains
+					if (len(handler.serials)==1):
 						DISPLAYSURF.blit(gameover,gameover.get_rect())
-						isgameover = True
+						isgameover = True	
 						handler.kill(handler.serials[0])
+					else:
+						sacrifice = True			
 					
 				else:
 					DISPLAYSURF.blit(goodsamhain,goodsamhain.get_rect())		
 			
-			# Sacrifice (?)	
+			# Ritual screen	
 			else:		
 				isrituals = True
 				DISPLAYSURF.blit(rituals,ritualsrect)#start of season
@@ -151,26 +154,32 @@ if __name__ == "__main__":
 			
 			
 		if waiting and sacrifice and not isgameover:
-			print (sacrifice_not_pressed)
-			if(len(sacrifice_not_pressed)==0):
-				sacrifice_not_pressed.append(handler.serials[0])#lol
-			if(len(sacrifice_not_pressed)==1):
-				#kill
-				handler.kill(sacrifice_not_pressed[0])
-				sacrifice = False
-				waiting = False
-				# Redraw background once per season to save processor
+			# print 'Checking sacrifice'
+			if len(handler.getTriggers()) > 0 and blocked:
+				DISPLAYSURF.blit(triggerRelease, ((WIDTH/2)-300,(HEIGHT/2)))
+			else:
+				blocked = False
+				# print (sacrifice_not_pressed) #Print list of controllers
+				DISPLAYSURF.blit(badsamhain,badsamhain.get_rect())
+				if(len(sacrifice_not_pressed)==0):
+					sacrifice_not_pressed.append(handler.serials[0])#lol
+				if(len(sacrifice_not_pressed)==1):
+					#kill
+					handler.kill(sacrifice_not_pressed[0])
+					sacrifice = False
+					waiting = False
+					# Redraw background once per season to save processor
+					
+					calendar.changeSeason()
+					handler.setLeds(calendar)
+					print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
+					DISPLAYSURF.blit(transition,transition.get_rect())
 				
-				calendar.changeSeason()
-				handler.setLeds(calendar)
-				print 'Season',calendar.getSeason(),'Year Type',calendar.getYear()
-				DISPLAYSURF.blit(transition,transition.get_rect())
-			
-				
-			for s in handler.getTriggers():
-				
-				if s in sacrifice_not_pressed:
-					sacrifice_not_pressed.remove(s)
+					
+				for s in handler.getTriggers():
+					
+					if s in sacrifice_not_pressed:
+						sacrifice_not_pressed.remove(s)
 				
 			
 			
@@ -194,7 +203,7 @@ if __name__ == "__main__":
 		if waiting:
 			waitingTime += 1
 
-		if waitingTime > 1000:
+		if waitingTime > 1000 and not blocked and not gameover:
 			DISPLAYSURF.blit(triggerPress,((WIDTH/2)-150,(HEIGHT/2))) # Prompt players to press trigger
 		
 		rotWheel = pygame.transform.rotate(seasonWheel,wheelAngle)
