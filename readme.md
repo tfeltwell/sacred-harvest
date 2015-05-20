@@ -1,18 +1,13 @@
 README
 
-Sacred Harvest - v0.2
+[Sacred Harvest](http://www.sacred-harvest.org)
 
-Creators: 
- * Ben Kirman
- * Conor Linehan
- * Tom Feltwell
-
- Created for Global Game Jam 2015 using Playstation Move controllers and Python
+Sacred Harvest is a prayer game based around Celtic mysticism, developed for the PS Move. It was created for Global Game Jam 2015 by Tom Feltwell, Ben Kirman and Conor Linehan.
 
 Installations Instructions:
 Uses PS Move API, available at: http://thp.io/2010/psmove/. Install/build this library and put the location of the build folder into the "apiPath" variable within controller_functions.py (within game directory)
 
-Can utilise up to PS Move controllers 4 controllers, which need to be paired using psmovepair (found within PSMoveAPI build folder)
+Can utilise as many PS Move controllers as can be connected to the Bluetooth controller. Each controller will need to be paired using psmovepair (found within PSMoveAPI build folder)
 
 Game is run using "python main.py" from command line
 
