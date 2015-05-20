@@ -1,6 +1,4 @@
-README
-
-[Sacred Harvest](http://www.sacred-harvest.org)
+# [Sacred Harvest](http://www.sacred-harvest.org)
 
 Sacred Harvest is a prayer game based around Celtic mysticism, developed for the PS Move. It was created for Global Game Jam 2015 by Tom Feltwell, Ben Kirman and Conor Linehan.
 
